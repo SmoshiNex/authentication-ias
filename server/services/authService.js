@@ -35,6 +35,27 @@ export async function initiateRegister({ email, password }) {
     return { message: "OTP sent" };
 }
 
+export async function resendOtp({ email }) {
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user || user.emailVerified) {
+        const err = new Error("Invalid request");
+        err.code = "INVALID_REQUEST";
+        throw err;
+    }
+
+    const otp = generateOtp();
+    const otpExpiresAt = new Date(Date.now() + OTP_TTL_MS);
+
+    await prisma.user.update({
+        where: { email },
+        data: { otpCode: otp, otpExpiresAt },
+    });
+
+    await sendOtpEmail(email, otp);
+    return { message: "OTP resent" };
+}
+
 export async function verifyOtp({ email, otp }) {
     const user = await prisma.user.findUnique({ where: { email } });
 

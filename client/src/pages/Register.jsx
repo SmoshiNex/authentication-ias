@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, ArrowRight, Loader2, Check, Mail, RotateCcw, Terminal, ShieldAlert, Database, Zap } from "lucide-react";
-import { register, verifyOtp } from "../services/api";
+import { register, resendOtp, verifyOtp } from "../services/api";
 import { useToast } from "../components/Toast";
 
 const ease = [0.16, 1, 0.3, 1];
@@ -253,9 +253,13 @@ function StepOtp({ email, onBack }) {
     }
 
     async function handleResend() {
-        try { await register({ email, password: "__resend__" }); } catch {}
+        try {
+            await resendOtp({ email });
+            toast.info("Code resent", `A new code was sent to ${email}.`);
+        } catch (err) {
+            toast.error("Failed to resend", err.error || err.message || "Please try again.");
+        }
         setResent(true);
-        toast.info("Code resent", `A new code was sent to ${email}.`);
         setTimeout(() => setResent(false), 4000);
     }
 

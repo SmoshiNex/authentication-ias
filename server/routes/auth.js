@@ -1,5 +1,5 @@
 import express from "express";
-import { initiateRegister, verifyOtp, loginUser } from "../services/authService.js";
+import { initiateRegister, resendOtp, verifyOtp, loginUser } from "../services/authService.js";
 
 const router = express.Router();
 
@@ -13,6 +13,19 @@ router.post("/register", async (req, res) => {
     } catch (err) {
         if (err.code === "EMAIL_EXISTS")
             return res.status(409).json({ error: err.message });
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.post("/resend-otp", async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ error: "Email required" });
+        const result = await resendOtp({ email });
+        res.json(result);
+    } catch (err) {
+        if (err.code === "INVALID_REQUEST")
+            return res.status(400).json({ error: err.message });
         res.status(500).json({ error: err.message });
     }
 });

@@ -7,39 +7,31 @@ const ToastContext = createContext(null);
 const VARIANTS = {
     success: {
         icon: CheckCircle2,
-        bar: "bg-emerald-500",
-        iconClass: "text-emerald-500",
-        bg: "bg-white",
-        border: "border-gray-100",
-        title: "text-gray-900",
-        msg: "text-gray-500",
+        bg: "bg-emerald-500",
+        text: "text-white",
+        iconClass: "text-white",
+        subtext: "text-white/80",
     },
     error: {
         icon: XCircle,
-        bar: "bg-red-500",
-        iconClass: "text-red-500",
-        bg: "bg-white",
-        border: "border-gray-100",
-        title: "text-gray-900",
-        msg: "text-gray-500",
+        bg: "bg-red-500",
+        text: "text-white",
+        iconClass: "text-white",
+        subtext: "text-white/80",
     },
     warning: {
         icon: AlertTriangle,
-        bar: "bg-yellow-400",
-        iconClass: "text-yellow-500",
-        bg: "bg-white",
-        border: "border-gray-100",
-        title: "text-gray-900",
-        msg: "text-gray-500",
+        bg: "bg-yellow-400",
+        text: "text-gray-900",
+        iconClass: "text-gray-900",
+        subtext: "text-gray-900/70",
     },
     info: {
         icon: Info,
-        bar: "bg-blue-500",
-        iconClass: "text-blue-500",
-        bg: "bg-white",
-        border: "border-gray-100",
-        title: "text-gray-900",
-        msg: "text-gray-500",
+        bg: "bg-gray-900",
+        text: "text-white",
+        iconClass: "text-white",
+        subtext: "text-white/70",
     },
 };
 
@@ -50,37 +42,31 @@ function ToastItem({ toast, onDismiss }) {
     return (
         <motion.div
             layout
-            initial={{ opacity: 0, y: 24, scale: 0.95 }}
+            initial={{ opacity: 0, y: -16, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -12, scale: 0.95 }}
+            exit={{ opacity: 0, y: -16, scale: 0.95 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className={`relative flex items-start gap-3 w-[340px] max-w-[calc(100vw-32px)] rounded-2xl border shadow-lg shadow-black/[0.06] overflow-hidden px-4 py-3.5 ${v.bg} ${v.border}`}
+            className={`flex items-center gap-3 w-[420px] max-w-[calc(100vw-32px)] rounded-2xl shadow-xl shadow-black/20 px-4 py-3.5 ${v.bg}`}
         >
-            {/* Left color bar */}
-            <div className={`absolute left-0 top-0 bottom-0 w-[3px] ${v.bar}`} />
+            <Icon size={18} className={`${v.iconClass} shrink-0`} />
 
-            {/* Icon */}
-            <Icon size={17} className={`${v.iconClass} shrink-0 mt-0.5`} />
-
-            {/* Text */}
             <div className="flex-1 min-w-0">
                 {toast.title && (
-                    <p className={`text-[13px] font-semibold leading-snug ${v.title}`}>{toast.title}</p>
+                    <p className={`text-[13px] font-semibold leading-snug ${v.text}`}>{toast.title}</p>
                 )}
                 {toast.message && (
-                    <p className={`text-[12px] leading-relaxed mt-0.5 ${v.msg}`}>{toast.message}</p>
+                    <p className={`text-[12px] leading-relaxed mt-0.5 ${v.subtext}`}>{toast.message}</p>
                 )}
             </div>
 
-            {/* Dismiss */}
             <button onClick={() => onDismiss(toast.id)}
-                className="shrink-0 text-gray-300 hover:text-gray-500 transition-colors mt-0.5">
-                <X size={14} />
+                className={`shrink-0 ${v.iconClass} opacity-70 hover:opacity-100 transition-opacity`}>
+                <X size={15} />
             </button>
 
             {/* Progress bar */}
             <motion.div
-                className={`absolute bottom-0 left-0 h-[2px] ${v.bar} opacity-30`}
+                className="absolute bottom-0 left-0 h-[3px] bg-black/20 rounded-full"
                 initial={{ width: "100%" }}
                 animate={{ width: "0%" }}
                 transition={{ duration: toast.duration / 1000, ease: "linear" }}
@@ -115,7 +101,7 @@ export function ToastProvider({ children }) {
         <ToastContext.Provider value={toast}>
             {children}
             {/* Portal-like fixed container */}
-            <div className="fixed bottom-5 right-5 z-[9999] flex flex-col gap-2.5 items-end pointer-events-none">
+            <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 items-center pointer-events-none">
                 <AnimatePresence mode="popLayout">
                     {toasts.map((t) => (
                         <div key={t.id} className="pointer-events-auto">

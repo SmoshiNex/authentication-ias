@@ -18,6 +18,13 @@ export function register(payload) {
     });
 }
 
+export function resendOtp(payload) {
+    return request("/api/auth/resend-otp", {
+        method: "POST",
+        body: JSON.stringify(payload),
+    });
+}
+
 export function verifyOtp(payload) {
     return request("/api/auth/verify-otp", {
         method: "POST",
