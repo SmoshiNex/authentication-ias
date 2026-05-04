@@ -18,9 +18,35 @@ export function register(payload) {
     });
 }
 
+export function verifyOtp(payload) {
+    return request("/api/auth/verify-otp", {
+        method: "POST",
+        body: JSON.stringify(payload),
+    });
+}
+
 export function login(payload) {
     return request("/api/auth/login", {
         method: "POST",
         body: JSON.stringify(payload),
+    });
+}
+
+function authHeaders() {
+    const token = localStorage.getItem("token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export function fetchProgress() {
+    return request("/api/progress", {
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+    });
+}
+
+export function saveProgress(moduleId, stepId) {
+    return request("/api/progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ moduleId, stepId }),
     });
 }
