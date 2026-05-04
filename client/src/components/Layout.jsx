@@ -3,17 +3,23 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Terminal, LayoutDashboard, ChevronDown, ChevronRight,
-    BookOpen, Zap, LogOut, Menu, X, CheckCircle2, Circle, Lock
+    BookOpen, Zap, LogOut, Menu, CheckCircle2, Circle, Lock,
+    Database, EyeOff, ShieldCheck, Trophy
 } from "lucide-react";
 import { MODULES } from "../data/curriculum";
 import { useProgress } from "../hooks/useProgress";
 import { useToast } from "./Toast";
 
-const MODULE_ICONS = { Database: "🗄", Zap: "⚡", EyeOff: "👁", ShieldCheck: "🛡" };
-const STEP_TYPE_ICON = { lesson: BookOpen, exercise: Zap, assessment: "🏆" };
+const MODULE_ICON_MAP = {
+    Database,
+    Zap,
+    EyeOff,
+    ShieldCheck,
+};
+
+const STEP_TYPE_ICON = { lesson: BookOpen, exercise: Zap, assessment: Trophy };
 
 function StepIcon({ type, size = 13 }) {
-    if (type === "assessment") return <span className="text-[11px]">🏆</span>;
     const Icon = STEP_TYPE_ICON[type] || Circle;
     return <Icon size={size} />;
 }
@@ -66,7 +72,9 @@ export default function Layout({ children }) {
                                 onClick={() => setExpanded(isExpanded ? null : mod.id)}
                                 className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-colors text-left ${isActiveModule ? "bg-white/10 text-white" : "text-white/50 hover:text-white/80 hover:bg-white/5"}`}
                             >
-                                <span className="text-[14px] shrink-0">{MODULE_ICONS[mod.icon]}</span>
+                                <span className="shrink-0 text-white/50">
+                                                {(() => { const Icon = MODULE_ICON_MAP[mod.icon] || Database; return <Icon size={14} />; })()}
+                                            </span>
                                 <span className="flex-1 leading-tight">{mod.title}</span>
                                 <div className="flex items-center gap-2 shrink-0">
                                     {prog === 100

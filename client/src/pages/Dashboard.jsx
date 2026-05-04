@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle2, BookOpen, Zap, Trophy, Terminal, Flame } from "lucide-react";
+import { ArrowRight, CheckCircle2, BookOpen, Zap, Trophy, Terminal, Flame, Database, EyeOff, ShieldCheck } from "lucide-react";
 import { MODULES, TOTAL_STEPS } from "../data/curriculum";
 import { useProgress } from "../hooks/useProgress";
 import Layout from "../components/Layout";
 
 const ease = [0.16, 1, 0.3, 1];
 const MODULE_COLORS = { Database: "#60a5fa", Zap: "#f87171", EyeOff: "#a78bfa", ShieldCheck: "#4ade80" };
-const MODULE_ICONS = { Database: "🗄", Zap: "⚡", EyeOff: "👁", ShieldCheck: "🛡" };
+const MODULE_ICON_MAP = { Database, Zap, EyeOff, ShieldCheck };
 
 function ProgressRing({ pct, color, size = 56 }) {
     const r = (size - 8) / 2;
@@ -53,7 +53,7 @@ export default function Dashboard() {
                     className="space-y-1">
                     <p className="text-[11px] font-mono font-semibold tracking-[0.12em] uppercase text-gray-400">// welcome back</p>
                     <h1 className="text-[28px] font-semibold text-gray-900 tracking-[-0.02em]">
-                        {allDone ? "You've completed InjectionX 🎉" : "Your Learning Path"}
+                        {allDone ? "You've completed InjectionX" : "Your Learning Path"}
                     </h1>
                     <p className="text-[14px] text-gray-400">
                         {allDone
@@ -141,9 +141,9 @@ export default function Dashboard() {
                                 {/* Header */}
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[18px]"
+                                        <div className="w-10 h-10 rounded-xl flex items-center justify-center"
                                             style={{ backgroundColor: `${color}15` }}>
-                                            {MODULE_ICONS[mod.icon]}
+                                            {(() => { const Icon = MODULE_ICON_MAP[mod.icon] || Database; return <Icon size={18} style={{ color }} />; })()}
                                         </div>
                                         <div>
                                             <p className="text-[14px] font-semibold text-gray-900">{mod.title}</p>
@@ -161,8 +161,9 @@ export default function Dashboard() {
                                         const stepDone = isComplete(mod.id, step.id);
                                         return (
                                             <span key={step.id}
-                                                className={`text-[10px] font-medium px-2 py-1 rounded-full border ${stepDone ? "bg-emerald-50 border-emerald-100 text-emerald-600" : step.type === "lesson" ? "bg-blue-50 border-blue-100 text-blue-500" : step.type === "exercise" ? "bg-orange-50 border-orange-100 text-orange-500" : "bg-yellow-50 border-yellow-100 text-yellow-600"}`}>
-                                                {stepDone ? "✓ " : ""}{step.title}
+                                                className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full border ${stepDone ? "bg-emerald-50 border-emerald-100 text-emerald-600" : step.type === "lesson" ? "bg-blue-50 border-blue-100 text-blue-500" : step.type === "exercise" ? "bg-orange-50 border-orange-100 text-orange-500" : "bg-yellow-50 border-yellow-100 text-yellow-600"}`}>
+                                                {stepDone && <CheckCircle2 size={9} />}
+                                                {step.title}
                                             </span>
                                         );
                                     })}
