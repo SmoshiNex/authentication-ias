@@ -10,13 +10,7 @@ import { MODULES } from "../data/curriculum";
 import { useProgress } from "../hooks/useProgress";
 import { useToast } from "./Toast";
 
-const MODULE_ICON_MAP = {
-    Database,
-    Zap,
-    EyeOff,
-    ShieldCheck,
-};
-
+const MODULE_ICON_MAP = { Database, Zap, EyeOff, ShieldCheck };
 const STEP_TYPE_ICON = { lesson: BookOpen, exercise: Zap, assessment: Trophy };
 
 function StepIcon({ type, size = 13 }) {
@@ -24,21 +18,8 @@ function StepIcon({ type, size = 13 }) {
     return <Icon size={size} />;
 }
 
-export default function Layout({ children }) {
-    const { moduleId, stepId } = useParams();
-    const navigate = useNavigate();
-    const { isComplete, moduleProgress } = useProgress();
-    const [expanded, setExpanded] = useState(moduleId || MODULES[0].id);
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-    const toast = useToast();
-
-    function logout() {
-        localStorage.removeItem("token");
-        toast.info("Signed out", "You've been signed out successfully.");
-        navigate("/login");
-    }
-
-    const Sidebar = () => (
+function Sidebar({ moduleId, stepId, expanded, setExpanded, setSidebarOpen, logout, isComplete, moduleProgress }) {
+    return (
         <div className="flex flex-col h-full bg-[#0d1117] border-r border-white/[0.06]">
             {/* Logo */}
             <div className="flex items-center gap-3 px-5 py-5 border-b border-white/[0.06]">
@@ -50,7 +31,6 @@ export default function Layout({ children }) {
 
             {/* Nav */}
             <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-                {/* Dashboard link */}
                 <Link to="/dashboard"
                     className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors ${!moduleId ? "bg-white/10 text-white" : "text-white/40 hover:text-white/70 hover:bg-white/5"}`}>
                     <LayoutDashboard size={14} />
@@ -73,8 +53,8 @@ export default function Layout({ children }) {
                                 className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-colors text-left ${isActiveModule ? "bg-white/10 text-white" : "text-white/50 hover:text-white/80 hover:bg-white/5"}`}
                             >
                                 <span className="shrink-0 text-white/50">
-                                                {(() => { const Icon = MODULE_ICON_MAP[mod.icon] || Database; return <Icon size={14} />; })()}
-                                            </span>
+                                    {(() => { const Icon = MODULE_ICON_MAP[mod.icon] || Database; return <Icon size={14} />; })()}
+                                </span>
                                 <span className="flex-1 leading-tight">{mod.title}</span>
                                 <div className="flex items-center gap-2 shrink-0">
                                     {prog === 100
@@ -99,7 +79,6 @@ export default function Layout({ children }) {
                                         {mod.steps.map((step, idx) => {
                                             const done = isComplete(mod.id, step.id);
                                             const active = moduleId === mod.id && stepId === step.id;
-                                            // Lock steps after first incomplete (except first step)
                                             const prevDone = idx === 0 || isComplete(mod.id, mod.steps[idx - 1].id);
                                             const locked = !done && !prevDone && idx > 0;
 
@@ -138,12 +117,29 @@ export default function Layout({ children }) {
             </div>
         </div>
     );
+}
+
+export default function Layout({ children }) {
+    const { moduleId, stepId } = useParams();
+    const navigate = useNavigate();
+    const { isComplete, moduleProgress } = useProgress();
+    const [expanded, setExpanded] = useState(moduleId || MODULES[0].id);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const toast = useToast();
+
+    function logout() {
+        localStorage.removeItem("token");
+        toast.info("Signed out", "You've been signed out successfully.");
+        navigate("/login");
+    }
+
+    const sidebarProps = { moduleId, stepId, expanded, setExpanded, setSidebarOpen, logout, isComplete, moduleProgress };
 
     return (
         <div className="min-h-screen bg-[#fafafa] flex">
             {/* Desktop sidebar */}
             <div className="hidden lg:flex lg:w-64 xl:w-72 shrink-0 flex-col fixed inset-y-0 left-0 z-30">
-                <Sidebar />
+                <Sidebar {...sidebarProps} />
             </div>
 
             {/* Mobile sidebar overlay */}
@@ -155,7 +151,7 @@ export default function Layout({ children }) {
                         <motion.div initial={{ x: -280 }} animate={{ x: 0 }} exit={{ x: -280 }}
                             transition={{ type: "spring", damping: 30, stiffness: 300 }}
                             className="fixed inset-y-0 left-0 w-72 z-50 lg:hidden">
-                            <Sidebar />
+                            <Sidebar {...sidebarProps} />
                         </motion.div>
                     </>
                 )}
