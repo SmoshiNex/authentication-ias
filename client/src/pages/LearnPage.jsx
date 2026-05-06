@@ -107,20 +107,6 @@ export default function LearnPage() {
                         />
                     )}
                 </motion.div>
-
-                {/* Prev / Next nav — always visible */}
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <button onClick={goPrev} disabled={!prev}
-                        className="flex items-center gap-2 text-[13px] text-gray-400 hover:text-gray-700 disabled:opacity-30 transition-colors">
-                        <ArrowLeft size={14} /> Previous
-                    </button>
-                    {alreadyDone && (
-                        <button onClick={goNext}
-                            className="flex items-center gap-2 text-[13px] text-gray-400 hover:text-gray-700 transition-colors">
-                            {next ? "Next" : "Dashboard"} <ArrowRight size={14} />
-                        </button>
-                    )}
-                </div>
             </div>
         </Layout>
     );
