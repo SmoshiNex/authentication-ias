@@ -107,6 +107,7 @@ function StepForm({ onSuccess }) {
     const [password, setPassword] = useState("");
     const [confirm, setConfirm] = useState("");
     const [showPw, setShowPw] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
     const [loading, setLoading] = useState(false);
     const [focused, setFocused] = useState(null);
     const [pwTouched, setPwTouched] = useState(false);
@@ -173,10 +174,17 @@ function StepForm({ onSuccess }) {
                     </AnimatePresence>
                 </div>
 
-                <FloatingInput id="confirm" type="password" label="Confirm password" value={confirm}
+                <FloatingInput id="confirm" type={showConfirm ? "text" : "password"} label="Confirm password" value={confirm}
                     onChange={setConfirm} autoComplete="new-password" focused={focused}
                     onFocus={() => setFocused("confirm")} onBlur={() => setFocused(null)}
-                    suffix={confirm.length > 0 && password === confirm ? <Check size={15} className="text-emerald-500" /> : null}
+                    suffix={
+                        <div className="flex items-center gap-2">
+                            {confirm.length > 0 && password === confirm && <Check size={15} className="text-emerald-500" />}
+                            <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="text-gray-300 hover:text-gray-500 transition-colors">
+                                {showConfirm ? <EyeOff size={15} /> : <Eye size={15} />}
+                            </button>
+                        </div>
+                    }
                 />
 
                 <motion.button type="submit" disabled={loading} whileTap={{ scale: 0.985 }}
