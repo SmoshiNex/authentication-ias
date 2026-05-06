@@ -14,15 +14,18 @@ function ProgressRing({ pct, color, size = 56 }) {
     const circ = 2 * Math.PI * r;
     const dash = (pct / 100) * circ;
     return (
-        <svg width={size} height={size} className="-rotate-90">
-            <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#e5e7eb" strokeWidth="4" />
-            <motion.circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth="4"
-                strokeLinecap="round" strokeDasharray={circ}
-                initial={{ strokeDashoffset: circ }}
-                animate={{ strokeDashoffset: circ - dash }}
-                transition={{ duration: 1, delay: 0.3, ease }}
-            />
-        </svg>
+        <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
+            <svg width={size} height={size} className="-rotate-90">
+                <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#e5e7eb" strokeWidth="4" />
+                <motion.circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth="4"
+                    strokeLinecap="round" strokeDasharray={circ}
+                    initial={{ strokeDashoffset: circ }}
+                    animate={{ strokeDashoffset: circ - dash }}
+                    transition={{ duration: 1, delay: 0.3, ease }}
+                />
+            </svg>
+            <span className="absolute font-mono text-[9px] font-bold tracking-tight" style={{ lineHeight: 1, color }}>{pct}%</span>
+        </div>
     );
 }
 
