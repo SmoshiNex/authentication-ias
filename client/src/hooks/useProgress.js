@@ -35,6 +35,16 @@ export function useProgress() {
             .finally(() => setLoading(false));
     }, []);
 
+    const unmarkComplete = useCallback((moduleId, stepId) => {
+        const key = `${moduleId}:${stepId}`;
+        setCompleted((prev) => {
+            const next = { ...prev };
+            delete next[key];
+            localStorage.setItem(CACHE_KEY, JSON.stringify(next));
+            return next;
+        });
+    }, []);
+
     const markComplete = useCallback((moduleId, stepId) => {
         const key = `${moduleId}:${stepId}`;
         // Optimistic update
@@ -69,5 +79,5 @@ export function useProgress() {
         setCompleted({});
     }, []);
 
-    return { completed, loading, markComplete, isComplete, moduleProgress, overallProgress, totalCompleted, resetProgress };
+    return { completed, loading, markComplete, unmarkComplete, isComplete, moduleProgress, overallProgress, totalCompleted, resetProgress };
 }

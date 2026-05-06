@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, ArrowRight } from "lucide-react";
+import { CheckCircle2, ArrowRight, RotateCcw } from "lucide-react";
 
 // Minimal markdown-like renderer: handles ```code blocks``` and `inline code`
 function renderTheory(text) {
@@ -42,9 +42,10 @@ function renderTheory(text) {
     });
 }
 
-export default function LessonView({ step, onComplete }) {
+export default function LessonView({ step, alreadyDone, onComplete, onReset }) {
     const [read, setRead] = useState(false);
     const { theory, keyPoints } = step.content;
+    const isDone = alreadyDone || read;
 
     return (
         <motion.div
@@ -78,8 +79,8 @@ export default function LessonView({ step, onComplete }) {
                 </div>
             )}
 
-            {/* Mark as read + continue */}
-            {!read ? (
+            {/* Mark as read / completed state */}
+            {!isDone ? (
                 <button
                     onClick={() => setRead(true)}
                     className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-black text-white text-[13px] font-medium rounded-xl transition-colors"
@@ -88,17 +89,18 @@ export default function LessonView({ step, onComplete }) {
                     <CheckCircle2 size={14} />
                 </button>
             ) : (
-                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3">
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 flex-wrap">
                     <div className="flex items-center gap-2 text-[13px] text-emerald-600 bg-emerald-50 border border-emerald-100 px-4 py-2.5 rounded-xl">
                         <CheckCircle2 size={14} />
                         Lesson complete
                     </div>
-                    <button
-                        onClick={onComplete}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-black text-white text-[13px] font-medium rounded-xl transition-colors"
-                    >
-                        Next step
-                        <ArrowRight size={14} />
+                    <button onClick={onReset}
+                        className="flex items-center gap-1.5 px-4 py-2.5 border border-gray-200 hover:border-gray-300 text-gray-500 hover:text-gray-700 text-[13px] font-medium rounded-xl transition-colors">
+                        <RotateCcw size={13} /> Reset lesson
+                    </button>
+                    <button onClick={onComplete}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-black text-white text-[13px] font-medium rounded-xl transition-colors">
+                        Next step <ArrowRight size={14} />
                     </button>
                 </motion.div>
             )}

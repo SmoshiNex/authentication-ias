@@ -13,7 +13,7 @@ import AssessmentView from "../components/AssessmentView";
 export default function LearnPage() {
     const { moduleId, stepId } = useParams();
     const navigate = useNavigate();
-    const { markComplete, isComplete } = useProgress();
+    const { markComplete, unmarkComplete, isComplete } = useProgress();
 
     const result = getStep(moduleId, stepId);
 
@@ -43,6 +43,10 @@ export default function LearnPage() {
     const stepIndex = module.steps.findIndex((s) => s.id === stepId);
     // Total steps across all modules for the progress dots (use module steps only)
     const totalSteps = module.steps.length;
+
+    function handleReset() {
+        unmarkComplete(moduleId, stepId);
+    }
 
     function handleComplete() {
         markComplete(moduleId, stepId);
@@ -81,36 +85,42 @@ export default function LearnPage() {
                     {step.type === "lesson" && (
                         <LessonView
                             step={step}
+                            alreadyDone={alreadyDone}
                             onComplete={handleComplete}
+                            onReset={handleReset}
                         />
                     )}
                     {step.type === "exercise" && (
                         <ExerciseView
                             step={step}
+                            alreadyDone={alreadyDone}
                             onComplete={handleComplete}
+                            onReset={handleReset}
                         />
                     )}
                     {step.type === "assessment" && (
                         <AssessmentView
                             step={step}
+                            alreadyDone={alreadyDone}
                             onComplete={handleComplete}
+                            onReset={handleReset}
                         />
                     )}
                 </motion.div>
 
-                {/* Prev / Next nav — always visible for already-completed steps */}
-                {alreadyDone && (
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                        <button onClick={goPrev} disabled={!prev}
-                            className="flex items-center gap-2 text-[13px] text-gray-400 hover:text-gray-700 disabled:opacity-30 transition-colors">
-                            <ArrowLeft size={14} /> Previous
-                        </button>
+                {/* Prev / Next nav — always visible */}
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <button onClick={goPrev} disabled={!prev}
+                        className="flex items-center gap-2 text-[13px] text-gray-400 hover:text-gray-700 disabled:opacity-30 transition-colors">
+                        <ArrowLeft size={14} /> Previous
+                    </button>
+                    {alreadyDone && (
                         <button onClick={goNext}
                             className="flex items-center gap-2 text-[13px] text-gray-400 hover:text-gray-700 transition-colors">
                             {next ? "Next" : "Dashboard"} <ArrowRight size={14} />
                         </button>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </Layout>
     );

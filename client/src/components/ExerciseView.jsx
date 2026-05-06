@@ -1,18 +1,23 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, XCircle, ArrowRight, Lightbulb, Terminal } from "lucide-react";
+import { CheckCircle2, XCircle, ArrowRight, Lightbulb, Terminal, RotateCcw } from "lucide-react";
 
 // ── MCQ (options array) ────────────────────────────────────────────────────
-function McqChallenge({ challenge, onCorrect }) {
-    const [selected, setSelected] = useState(null);
-    const [submitted, setSubmitted] = useState(false);
+function McqChallenge({ challenge, onCorrect, alreadyDone }) {
     const correct = challenge.options.find((o) => o.correct);
+    const [selected, setSelected] = useState(alreadyDone ? correct?.id : null);
+    const [submitted, setSubmitted] = useState(alreadyDone);
     const isRight = selected === correct?.id;
 
     function submit() {
         if (!selected) return;
         setSubmitted(true);
         if (isRight) setTimeout(onCorrect, 1400);
+    }
+
+    function retry() {
+        setSelected(null);
+        setSubmitted(false);
     }
 
     return (
@@ -64,8 +69,15 @@ function McqChallenge({ challenge, onCorrect }) {
                     <motion.div initial={{ opacity: 0, y: -6, height: 0 }} animate={{ opacity: 1, y: 0, height: "auto" }}
                         exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
                         className={`rounded-xl px-4 py-3 text-[13px] leading-relaxed border ${isRight ? "bg-emerald-50 border-emerald-100 text-emerald-700" : "bg-red-50 border-red-100 text-red-700"}`}>
-                        <strong>{isRight ? "Correct! " : "Not quite. "}</strong>
-                        {challenge.explanation}
+                        <div className="flex items-center justify-between gap-3">
+                            <span><strong>{isRight ? "Correct! " : "Not quite. "}</strong>{challenge.explanation}</span>
+                            {!isRight && (
+                                <button onClick={retry}
+                                    className="shrink-0 flex items-center gap-1.5 text-[12px] font-medium text-red-600 bg-white border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors">
+                                    <RotateCcw size={11} /> Retry
+                                </button>
+                            )}
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -82,16 +94,21 @@ function McqChallenge({ challenge, onCorrect }) {
 }
 
 // ── Snippet picker ─────────────────────────────────────────────────────────
-function SnippetChallenge({ challenge, onCorrect }) {
-    const [selected, setSelected] = useState(null);
-    const [submitted, setSubmitted] = useState(false);
+function SnippetChallenge({ challenge, onCorrect, alreadyDone }) {
     const correct = challenge.snippets.find((s) => s.correct);
+    const [selected, setSelected] = useState(alreadyDone ? correct?.id : null);
+    const [submitted, setSubmitted] = useState(alreadyDone);
     const isRight = selected === correct?.id;
 
     function submit() {
         if (!selected) return;
         setSubmitted(true);
         if (isRight) setTimeout(onCorrect, 1400);
+    }
+
+    function retry() {
+        setSelected(null);
+        setSubmitted(false);
     }
 
     return (
@@ -134,8 +151,15 @@ function SnippetChallenge({ challenge, onCorrect }) {
                     <motion.div initial={{ opacity: 0, y: -6, height: 0 }} animate={{ opacity: 1, y: 0, height: "auto" }}
                         exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
                         className={`rounded-xl px-4 py-3 text-[13px] leading-relaxed border ${isRight ? "bg-emerald-50 border-emerald-100 text-emerald-700" : "bg-red-50 border-red-100 text-red-700"}`}>
-                        <strong>{isRight ? "Correct! " : "Not quite. "}</strong>
-                        {challenge.explanation}
+                        <div className="flex items-center justify-between gap-3">
+                            <span><strong>{isRight ? "Correct! " : "Not quite. "}</strong>{challenge.explanation}</span>
+                            {!isRight && (
+                                <button onClick={retry}
+                                    className="shrink-0 flex items-center gap-1.5 text-[12px] font-medium text-red-600 bg-white border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors">
+                                    <RotateCcw size={11} /> Retry
+                                </button>
+                            )}
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -151,11 +175,11 @@ function SnippetChallenge({ challenge, onCorrect }) {
 }
 
 // ── Free-text input ────────────────────────────────────────────────────────
-function InputChallenge({ challenge, onCorrect }) {
-    const [value, setValue] = useState("");
-    const [submitted, setSubmitted] = useState(false);
+function InputChallenge({ challenge, onCorrect, alreadyDone }) {
+    const [value, setValue] = useState(alreadyDone ? (challenge.successValue ?? "") : "");
+    const [submitted, setSubmitted] = useState(alreadyDone);
     const [showHint, setShowHint] = useState(false);
-    const [isRight, setIsRight] = useState(false);
+    const [isRight, setIsRight] = useState(alreadyDone);
 
     function submit(e) {
         e.preventDefault();
@@ -266,45 +290,54 @@ function InputChallenge({ challenge, onCorrect }) {
 }
 
 // ── Main ExerciseView ──────────────────────────────────────────────────────
-export default function ExerciseView({ step, onComplete }) {
+export default function ExerciseView({ step, alreadyDone, onComplete, onReset }) {
     const [done, setDone] = useState(false);
+    const [resetKey, setResetKey] = useState(0);
     const { challenge } = step;
 
     function handleCorrect() {
         setDone(true);
     }
 
+    function handleReset() {
+        setDone(false);
+        setResetKey((k) => k + 1);
+        onReset();
+    }
+
     const hasOptions = challenge.options && !challenge.snippets;
     const hasSnippets = !!challenge.snippets;
     const hasInput = challenge.type === "input";
+    const isCompleted = alreadyDone || done;
 
     return (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}
             className="space-y-6">
-            {/* Description */}
             <p className="text-[14px] text-gray-600 leading-relaxed">{challenge.description}</p>
 
-            {/* Challenge type */}
-            {hasInput && <InputChallenge challenge={challenge} onCorrect={handleCorrect} />}
-            {hasOptions && <McqChallenge challenge={challenge} onCorrect={handleCorrect} />}
-            {hasSnippets && <SnippetChallenge challenge={challenge} onCorrect={handleCorrect} />}
+            {/* Challenge — always rendered, remounts on reset via resetKey */}
+            {hasInput && <InputChallenge key={resetKey} challenge={challenge} onCorrect={handleCorrect} alreadyDone={alreadyDone} />}
+            {hasOptions && <McqChallenge key={resetKey} challenge={challenge} onCorrect={handleCorrect} alreadyDone={alreadyDone} />}
+            {hasSnippets && <SnippetChallenge key={resetKey} challenge={challenge} onCorrect={handleCorrect} alreadyDone={alreadyDone} />}
 
-            {/* Continue after correct */}
-            <AnimatePresence>
-                {done && (
-                    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                        className="flex items-center gap-3 pt-2">
-                        <div className="flex items-center gap-2 text-[13px] text-emerald-600 bg-emerald-50 border border-emerald-100 px-4 py-2.5 rounded-xl">
-                            <CheckCircle2 size={14} />
-                            Exercise complete
-                        </div>
-                        <button onClick={onComplete}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-black text-white text-[13px] font-medium rounded-xl transition-colors">
-                            Next step <ArrowRight size={14} />
-                        </button>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* Completed state — rendered below the exercise */}
+            {isCompleted && (
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-3 flex-wrap">
+                    <div className="flex items-center gap-2 text-[13px] text-emerald-600 bg-emerald-50 border border-emerald-100 px-4 py-2.5 rounded-xl">
+                        <CheckCircle2 size={14} />
+                        Exercise complete
+                    </div>
+                    <button onClick={handleReset}
+                        className="flex items-center gap-1.5 px-4 py-2.5 border border-gray-200 hover:border-gray-300 text-gray-500 hover:text-gray-700 text-[13px] font-medium rounded-xl transition-colors">
+                        <RotateCcw size={13} /> Reset exercise
+                    </button>
+                    <button onClick={onComplete}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-black text-white text-[13px] font-medium rounded-xl transition-colors">
+                        Next step <ArrowRight size={14} />
+                    </button>
+                </motion.div>
+            )}
         </motion.div>
     );
 }

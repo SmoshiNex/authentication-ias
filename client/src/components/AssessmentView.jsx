@@ -2,11 +2,40 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, XCircle, Trophy, ArrowRight, RotateCcw } from "lucide-react";
 
-export default function AssessmentView({ step, onComplete }) {
+export default function AssessmentView({ step, alreadyDone, onComplete, onReset }) {
     const { questions } = step.challenge;
-    const [answers, setAnswers] = useState({});       // { qId: optId }
+    const [answers, setAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
     const [score, setScore] = useState(0);
+
+    // If already done, show completed state immediately
+    if (alreadyDone) {
+        return (
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}
+                className="space-y-8">
+                <p className="text-[14px] text-gray-600 leading-relaxed">{step.challenge.description}</p>
+                <div className="rounded-2xl p-6 border bg-emerald-50 border-emerald-100 flex items-center gap-5">
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 bg-emerald-100">
+                        <Trophy size={24} className="text-emerald-600" />
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-[18px] font-bold tracking-tight text-emerald-800">Assessment Passed!</p>
+                        <p className="text-[13px] mt-0.5 text-emerald-600">You've already completed this assessment.</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button onClick={onReset}
+                            className="flex items-center gap-1.5 px-4 py-2 bg-white border border-emerald-200 text-emerald-700 text-[13px] font-medium rounded-xl hover:bg-emerald-50 transition-colors shrink-0">
+                            <RotateCcw size={13} /> Reset
+                        </button>
+                        <button onClick={onComplete}
+                            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-medium rounded-xl transition-colors shrink-0">
+                            Next <ArrowRight size={13} />
+                        </button>
+                    </div>
+                </div>
+            </motion.div>
+        );
+    }
 
     function select(qId, optId) {
         if (submitted) return;
