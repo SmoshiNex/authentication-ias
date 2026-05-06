@@ -203,11 +203,11 @@ function StepForm({ onSuccess }) {
                 Sign in instead
             </Link>
 
-            <p className="text-center text-[12px] text-gray-300">
+            {/* <p className="text-center text-[12px] text-gray-300">
                 By continuing, you agree to our{" "}
                 <span className="text-gray-400 underline underline-offset-2 cursor-pointer">Terms</span>{" "}and{" "}
                 <span className="text-gray-400 underline underline-offset-2 cursor-pointer">Privacy Policy</span>
-            </p>
+            </p> */}
         </motion.div>
     );
 }
